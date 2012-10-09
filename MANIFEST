@@ -1,0 +1,8 @@
+Build.PL
+lib/URI/Builder.pm
+MANIFEST			This list of files
+t/construct.t
+t/query.t
+Makefile.PL
+META.yml
+META.json
