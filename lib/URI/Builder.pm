@@ -5,7 +5,26 @@ use warnings;
 
 =head1 NAME
 
-URI::Builder
+URI::Builder - URI objects optimised for manipulation
+
+=head1 SYNOPSIS
+
+    my $uri = URI::Builder->new(
+        scheme => 'http',
+        host   => 'www.cpan.org',
+    );
+
+    $uri->path_segments(qw( misc cpan-faq.html ));
+
+    say $uri->as_string; # http://www.cpan.org/misc/cpan-faq.html
+
+=head1 DESCRIPTION
+
+This class is a close relative of L<URI>, but while that class is optimised
+for parsing, this is optimised for building up or modifying URIs.
+
+At the moment only http and https URIs are known to work correctly, support
+for other schemes.
 
 =cut
 
@@ -34,6 +53,42 @@ sub flatten_hash {
 use namespace::clean;
 
 use overload ('""' => \&as_string, fallback => 1);
+
+=head1 ATTRIBUTES
+
+The following attributes relate closely with the URI methods of the same
+names.
+
+=over
+
+=item * scheme
+
+=item * userinfo
+
+=item * host
+
+=item * port
+
+=item * path_segments
+
+=item * query_form
+
+=item * query_keywords
+
+=item * fragment
+
+=back
+
+In addition the C<query_separator> attribute defines how C<query_form> fields
+are joined. It defaults to C<';'> but can be usefully set to '&'.
+
+The accessors for these attributes have a similar interface to the L<URI>
+methods, that is to say that they return old values when new ones are set.
+Those attributes that take a list of values: C<path_segments>, C<query_form>
+and C<query_keywords> all return plain lists but can be passed nested array
+references.
+
+=cut
 
 my (@uri_fields, %listish, @fields);
 
@@ -79,16 +134,32 @@ BEGIN {
     }
 }
 
-sub clone {
-    my $self = shift;
+=head1 METHODS
 
-    my %clone = %$self;
-    for my $list ( keys %listish ) {
-        $clone{$list} &&= [ @{ $clone{$list} || [] } ];
-    }
+=head2 new
 
-    return $self->new(%clone);
-}
+The constructor.
+
+In addition to the attributes listed above, a C<uri> argument can be passed as
+a string or a L<URI> object, which will be parsed to popoulate any missing
+fields.
+
+    # a cpan URL without its path
+    my $uri = URI::Builder->new(
+        uri => 'http://www.cpan.org/SITES.html',
+        path_segments => [],
+    );
+
+Non-attribute arguments that match other methods in the class will cause those
+methods to be called on the object. This means that what we internally regard
+as composite attributes can be specified directly in the constructor.
+
+    # Implicitly populate path_segments:
+    my $uri = URI::Builder->new( path => 'relative/path' );
+
+Unrecognised arguments cause an exception.
+
+=cut
 
 sub new {
     my $class = shift;
@@ -114,24 +185,44 @@ sub new {
 
     delete @opts{@fields};
 
-    for my $field (keys %opts) {
+    for my $field (sort keys %opts) {
         if (my $method = $self->can($field)) {
             $method->($self, flatten delete $opts{$field});
         }
     }
 
     if (my @invalid = sort keys %opts) {
-        die "Unrecognised fields in constructor: ", join ', ', @invalid;
+        confess "Unrecognised fields in constructor: ", join ', ', @invalid;
     }
 
     return $self;
 }
 
-sub uri {
+=head2 clone
+
+Returns a new object with all attributes copied.
+
+=cut
+
+sub clone {
     my $self = shift;
 
-    return URI->new($self->as_string);
+    my %clone = %$self;
+    for my $list ( keys %listish ) {
+        $clone{$list} &&= [ @{ $clone{$list} || [] } ];
+    }
+
+    return $self->new(%clone);
 }
+
+=head2 as_string
+
+Returns the URI described by the object as a string. This is built up from the
+individual components each time it's called.
+
+This is also used as the stringification overload.
+
+=cut
 
 sub as_string {
     my $self = shift;
@@ -164,12 +255,38 @@ sub as_string {
     return join('', @parts);
 }
 
+=head2 uri
+
+Returns a version of this object as a L<URI> object.
+
+=cut
+
+sub uri {
+    my $self = shift;
+
+    return URI->new($self->as_string);
+}
+
+=head2 default_port
+
+Returns the default port for the current object's scheme. This is obtained
+from the appropriate L<URI> subclass. See L<URI/default_port>.
+
+=cut
+
 my %port;
 sub default_port {
     my $self = shift;
     my $scheme = $self->scheme || 'http';
     return $port{$scheme} ||= URI::implementor($scheme)->default_port;
+
 }
+
+=head2 secure
+
+See L<URI/secure>.
+
+=cut
 
 my %secure;
 sub secure {
@@ -178,12 +295,27 @@ sub secure {
     return $secure{$scheme} ||= URI::implementor($scheme)->secure;
 }
 
+=head2 authority
+
+Returns the 'authority' section of the URI. In our case this is obtained by
+combining C<userinfo>, C<host> and C<port> together as appropriate.
+
+Note that this is a read-only opertion.
+
+=cut
+
 sub authority {
     my $self = shift;
     my ($user, $host) = ($self->userinfo, $self->host_port);
 
     return $host ? $user ? "$user\@$host" : $host : '';
 }
+
+=head2 host_port
+
+Returns the host and port in a single string.
+
+=cut
 
 sub host_port {
     my $self = shift;
@@ -192,25 +324,16 @@ sub host_port {
     return $host ? $port ? "$host:$port" : $host : '';
 }
 
-sub as_iri {
-    confess "TODO";
-}
+=head2 path
 
-sub ihost {
-    confess "TODO";
-}
+Returns the path portion of the URI as a string.
 
-sub abs {
-    my ($self, $base) = @_;
+Can be assigned to to populate C<path_segments>.
 
-    confess "TODO";
-}
+Leading, trailing and doubled slashes are represented faithfully using empty
+path segments.
 
-sub rel {
-    my ($self, $base) = @_;
-
-    confess "TODO";
-}
+=cut
 
 sub path {
     my $self = shift;
@@ -224,6 +347,15 @@ sub path {
 
     return $old;
 }
+
+=head2 query
+
+Returns a string representation of the query. This is obtained from either
+C<query_form> or C<query_keywords>, in that order.
+
+If an argument is passed, it is parsed to populate C<query_form>.
+
+=cut
 
 sub query {
     my ($self, $query) = @_;
@@ -256,12 +388,42 @@ sub query {
     return $old;
 }
 
+=head2 path_query
+
+=cut
+
 sub path_query {
     my $self = shift;
     my ($path, $query) = ($self->path, $self->query);
 
-    return $path . ($query ? "?$query" : '');
+    my $old = $path . ($query ? "?$query" : '');
+
+    if (@_) {
+        my $uri = URI->new($_[0]);
+        $self->$_([ $uri->$_ ]) for qw( path_segments query_form );
+    }
+
+    return $old
 }
+
+=head2 query_param
+
+    @keys       = $uri->query_param
+    @values     = $uri->query_param($key)
+    @old_values = $uri->query_param($key, @new_values);
+
+This works exactly like the method of the same name implemented in
+L<URI::QueryParam>.
+
+With no arguments, all unique query field names are returned
+
+With one argument, all values for the given field name are returned
+
+With more than one argument, values for the given key (first argument) are set
+to the given values (remaining arguments). Care is taken in this case to
+preserve the ordering of the fields.
+
+=cut
 
 sub query_param {
     my ($self, $key, @values) = @_;
@@ -296,6 +458,14 @@ sub query_param {
     }
 }
 
+=head2 query_param_append
+
+    $uri->query_param_append($key, @values)
+
+Appends fields to the end of the C<query_form>. Returns nothing.
+
+=cut
+
 sub query_param_append {
     my ($self, $key, @values) = @_;
 
@@ -304,11 +474,29 @@ sub query_param_append {
     return;
 }
 
+=head2 query_param_delete
+
+    @old_values = $uri->query_param_delete($key)
+
+Removes all fields with the given key from the C<query_form>.
+
+=cut
+
 sub query_param_delete {
     my ($self, $key) = @_;
 
     return $self->query_param($key, []);
 }
+
+=head2 query_form_hash
+
+    $hashref     = $uri->query_form_hash
+    $old_hashref = $uri->query_form_hash(\%new_hashref)
+
+A hash representation of the C<query_form>, with multiple values represented
+as arrayrefs.
+
+=cut
 
 sub query_form_hash {
     my $self = shift;
@@ -333,6 +521,22 @@ sub query_form_hash {
 
     return \%form;
 }
+
+=head1 TODO
+
+The following URI methods are currently not implemented:
+
+=over
+
+=item * as_iri
+
+=item * ihost
+
+=item * abs
+
+=item * rel
+
+=cut
 
 1;
 
