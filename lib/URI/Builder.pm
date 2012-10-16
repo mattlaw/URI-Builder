@@ -168,11 +168,13 @@ sub new {
     $opts{query_separator} ||= ';';
 
     if (my $uri = $opts{uri}) {
-        $uri = URI->new($uri, 'http') unless blessed $uri;
+        $uri = $class->_inflate_uri($uri);
 
         for my $field (@uri_fields) {
-            $opts{$field} ||=
-              $listish{$field} ? [ $uri->$field ] : $uri->$field;
+            if (!defined $opts{$field} && (my $code = $uri->can($field))) {
+                $opts{$field} =
+                  $listish{$field} ? [ $code->($uri) ] : $code->($uri);
+            }
         }
     }
 
@@ -196,6 +198,62 @@ sub new {
     }
 
     return $self;
+}
+
+sub _inflate_uri {
+    my ($self, $thing) = @_;
+
+    if (blessed $thing) {
+        if ($thing->isa('URI')) {
+            return $thing;
+        }
+        elsif ($thing->isa(__PACKAGE__)) {
+            return $thing->uri;
+        }
+        else {
+            return URI->new("$thing");
+        }
+    }
+    else {
+        return URI->new($thing);
+    }
+}
+
+=head2 abs
+
+    $absolute_uri = $relative_uri->abs($base_uri)
+
+Returns a new L<URI::Builder> object as an absolute URL based on the given
+base URI.
+
+Implemented as a wrapper of L<URI/abs>.
+
+=cut
+
+sub abs {
+    my ($self, $base, @args) = @_;
+    my $class = ref $self;
+
+    return $class->new(uri => $self->uri->abs($self->_inflate_uri($base), @args));
+}
+
+
+=head2 rel
+
+    $relative_uri = $absolute_uri->rel($base_uri)
+
+Returns a new L<URI::Builder> object denoting the relative URI compared with
+the base URI.
+
+Implemented as a wrapper of L<URI/rel>.
+
+=cut
+
+sub rel {
+    my ($self, $base) = @_;
+    my $class = ref $self;
+
+    return $class->new(uri => $self->uri->rel($self->_inflate_uri($base)));
 }
 
 =head2 clone
@@ -531,10 +589,6 @@ The following URI methods are currently not implemented:
 =item * as_iri
 
 =item * ihost
-
-=item * abs
-
-=item * rel
 
 =cut
 
