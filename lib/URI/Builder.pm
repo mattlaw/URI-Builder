@@ -574,7 +574,7 @@ sub query_form_hash {
         my @values = $self->query_param($_);
         ( $_ => @values == 1 ? $values[0] : \@values );
     } $self->query_param;
-    
+
     $self->query_form(@new) if @new;
 
     return \%form;
@@ -641,4 +641,3 @@ via URI::_server -> URI::_generic -> URI::_query: equery
 via URI::_server -> URI::_generic -> URI::_query: query
 via URI::_server -> URI::_generic -> URI::_query: query_form
 via URI::_server -> URI::_generic -> URI::_query: query_keywords
-
