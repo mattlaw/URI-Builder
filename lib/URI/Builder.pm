@@ -18,6 +18,14 @@ URI::Builder - URI objects optimised for manipulation
 
     say $uri->as_string; # http://www.cpan.org/misc/cpan-faq.html
 
+=head1 VERSION
+
+0.01
+
+=cut
+
+our $VERSION = '0.01';
+
 =head1 DESCRIPTION
 
 This class is a close relative of L<URI>, but while that class is optimised
