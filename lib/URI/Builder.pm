@@ -29,10 +29,14 @@ our $VERSION = '0.01';
 =head1 DESCRIPTION
 
 This class is a close relative of L<URI>, but while that class is optimised
-for parsing, this is optimised for building up or modifying URIs.
+for parsing, this is optimised for building up or modifying URIs. To that end
+objects of this class represent their URIs in sections, each of which are
+independently mutable, that then need to be serialised to form a string. In
+contrast, C<URI> uses a fully-formed string internally which must be parsed
+afresh each time a mutation is performed on it.
 
 At the moment only http and https URIs are known to work correctly, support
-for other schemes.
+for other schemes may follow later.
 
 =cut
 
@@ -208,6 +212,7 @@ sub new {
     return $self;
 }
 
+# Turn various things into URI objects
 sub _inflate_uri {
     my ($self, $thing) = @_;
 
