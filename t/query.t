@@ -1,4 +1,4 @@
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use URI::Builder;
 
@@ -71,3 +71,6 @@ is_deeply(
     { foo => [1, 2, 3, 4] },
     'setting query_form_hash works the same in void context',
 );
+
+$uri = URI::Builder->new(query_form => [ a => 'b', 'c' ] );
+is $uri->as_string, '?a=b;c=', 'odd-sized query_form lists get a blank value';
