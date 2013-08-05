@@ -4,7 +4,7 @@
       "unknown"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4005, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "unknown"
    ],
@@ -29,9 +29,9 @@
    "provides" : {
       "URI::Builder" : {
          "file" : "lib/URI/Builder.pm",
-         "version" : 0
+         "version" : "0.01"
       }
    },
    "release_status" : "stable",
-   "version" : "0"
+   "version" : "0.01"
 }

@@ -6,3 +6,4 @@ t/query.t
 Makefile.PL
 META.yml
 META.json
+README

@@ -13,4 +13,5 @@ Module::Build->new(
         'Module::Build' => '0.38',
     },
     create_makefile_pl => 'small',
+    create_readme => 1,
 )->create_build_script;
