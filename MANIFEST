@@ -6,5 +6,6 @@ MANIFEST			This list of files
 META.json
 META.yml
 README
+t/clone.t
 t/construct.t
 t/query.t

@@ -282,7 +282,7 @@ sub clone {
         $clone{$list} &&= [ @{ $clone{$list} || [] } ];
     }
 
-    return $self->new(%clone);
+    return ref($self)->new(%clone);
 }
 
 =head2 as_string
