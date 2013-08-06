@@ -342,28 +342,20 @@ sub uri {
 Returns the default port for the current object's scheme. This is obtained
 from the appropriate L<URI> subclass. See L<URI/default_port>.
 
-=cut
-
-my %port;
-sub default_port {
-    my $self = shift;
-    my $scheme = $self->scheme || 'http';
-    return $port{$scheme} ||= URI::implementor($scheme)->default_port;
-
-}
-
 =head2 secure
 
 See L<URI/secure>.
 
 =cut
 
-my %secure;
-sub secure {
+sub _implementor {
     my $self = shift;
-    my $scheme = $self->scheme || 'http';
-    return $secure{$scheme} ||= URI::implementor($scheme)->secure;
+
+    return URI::implementor($self->scheme || 'http');
 }
+
+sub default_port { shift->_implementor->default_port }
+sub secure       { shift->_implementor->secure       }
 
 =head2 authority
 
