@@ -141,6 +141,12 @@ BEGIN {
                 path_segments => [qw( one two three )],
             },
             expect => '//localhost/one/two/three?foo',
+        }, {
+            args => {
+                # one pair only to avoid relying on hash order
+                query_form => { a => "b" },
+            },
+            expect => '?a=b',
         }
     );
 

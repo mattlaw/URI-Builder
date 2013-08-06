@@ -188,7 +188,8 @@ sub new {
         }
     }
 
-    $_ = [ _flatten $_ ] for grep defined && !ref, @opts{ keys %listish };
+    $_ = [ _flatten $_ ]
+        for grep defined && ref ne 'ARRAY', @opts{ keys %listish };
 
     # Still no scheme? Default to http
     # $opts{scheme} ||= 'http';
