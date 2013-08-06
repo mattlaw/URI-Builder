@@ -111,13 +111,14 @@ METHODS
     obtained from the appropriate URI subclass. See "default_port" in URI.
 
   secure
-    See "secure" in URI.
+    Returns true if the current scheme is a secure one, false otherwise. See
+    "secure" in URI.
 
   authority
     Returns the 'authority' section of the URI. In our case this is obtained
     by combining "userinfo", "host" and "port" together as appropriate.
 
-    Note that this is a read-only opertion.
+    Note that this is a read-only operation.
 
   host_port
     Returns the host and port in a single string.

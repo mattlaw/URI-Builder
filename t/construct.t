@@ -1,9 +1,13 @@
+use strict;
+use warnings;
+
 use Test::More;
 
 use URI::Builder;
 
+my @cases;
 BEGIN {
-    our @cases = (
+    @cases = (
         {
             args => {
                 uri => 'http://localhost',
@@ -153,7 +157,6 @@ BEGIN {
     plan tests => @cases + 0;
 }
 
-for my $case (our @cases) {
+for my $case (@cases) {
     is( URI::Builder->new(%{$case->{args}})->as_string, $case->{expect} );
 }
-

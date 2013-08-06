@@ -1,4 +1,7 @@
-use Test::More tests => 12;
+use strict;
+use warnings;
+
+use Test::More tests => 18;
 
 use URI::Builder;
 
@@ -72,5 +75,31 @@ is_deeply(
     'setting query_form_hash works the same in void context',
 );
 
+$uri->query_form_hash(foo => [ 1, 2, 3, 4 ]);
+is_deeply(
+    $uri->query_form_hash,
+    { foo => [1, 2, 3, 4] },
+    'setting query_form_hash works the same in void context without ref',
+);
+
+is $uri->path_query('/foo/bar?x=y'), '?foo=1;foo=2;foo=3;foo=4',
+   'path_query returns old value when setting new value';
+
+is $uri->path_query, '/foo/bar?x=y', 'path_query round-trip';
+is $uri->path, '/foo/bar', 'path set by path_query';
+is $uri->query, 'x=y', 'query set by path_query';
+
 $uri = URI::Builder->new(query_form => [ a => 'b', 'c' ] );
 is $uri->as_string, '?a=b;c=', 'odd-sized query_form lists get a blank value';
+
+# Edge-case behaviour, some of which causes warnings but represents light
+# interface abuse which deserves warnings in real life but doesn't justify
+# warnings appearing in tests.
+local $SIG{__WARN__} = sub {};
+
+$uri->query_form_hash('foo');
+is_deeply(
+    $uri->query_form_hash,
+    { foo => '' },
+    'setting query_form_hash with one non-hashref argument makes an empty key',
+);

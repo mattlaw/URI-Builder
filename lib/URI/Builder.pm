@@ -58,6 +58,7 @@ sub _flatten_hash {
 
     return map {
         my ($k, $v) = ($_, $hash->{$_});
+        $v = '' unless defined $v;
         map { $k => $_ } _flatten $v
     } keys %$hash;
 }
@@ -344,7 +345,8 @@ from the appropriate L<URI> subclass. See L<URI/default_port>.
 
 =head2 secure
 
-See L<URI/secure>.
+Returns true if the current scheme is a secure one, false otherwise. See
+L<URI/secure>.
 
 =cut
 
@@ -362,7 +364,7 @@ sub secure       { shift->_implementor->secure       }
 Returns the 'authority' section of the URI. In our case this is obtained by
 combining C<userinfo>, C<host> and C<port> together as appropriate.
 
-Note that this is a read-only opertion.
+Note that this is a read-only operation.
 
 =cut
 
