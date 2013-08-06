@@ -21,17 +21,16 @@
       },
       "runtime" : {
          "requires" : {
-            "URI" : "1.60",
-            "namespace::clean" : "0.23"
+            "URI" : "1.60"
          }
       }
    },
    "provides" : {
       "URI::Builder" : {
          "file" : "lib/URI/Builder.pm",
-         "version" : "0.01"
+         "version" : "0.02"
       }
    },
    "release_status" : "stable",
-   "version" : "0.01"
+   "version" : "0.02"
 }
