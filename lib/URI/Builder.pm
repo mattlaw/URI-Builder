@@ -20,11 +20,11 @@ URI::Builder - URI objects optimised for manipulation
 
 =head1 VERSION
 
-0.02
+0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 DESCRIPTION
 
@@ -596,6 +596,12 @@ The following URI methods are currently not implemented:
 =item * as_iri
 
 =item * ihost
+
+=back
+
+=head1 LICENSE
+
+L<perlartistic>
 
 =cut
 

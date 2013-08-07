@@ -12,7 +12,7 @@ SYNOPSIS
         say $uri->as_string; # http://www.cpan.org/misc/cpan-faq.html
 
 VERSION
-    0.02
+    0.03
 
 DESCRIPTION
     This class is a close relative of URI, but while that class is optimised
@@ -177,4 +177,7 @@ TODO
     *   as_iri
 
     *   ihost
+
+LICENSE
+    perlartistic
 
