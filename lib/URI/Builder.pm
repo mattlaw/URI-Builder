@@ -455,6 +455,9 @@ sub query {
 
 =head2 path_query
 
+Returns a string representation of the path plus the query string. See
+L<URI/path_query>.
+
 =cut
 
 sub path_query {
