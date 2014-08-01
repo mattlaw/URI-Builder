@@ -518,7 +518,7 @@ sub query_param {
             $self->query_form(@form);
         }
 
-        return @old_values;
+        return wantarray ? @old_values : $old_values[0];
     }
     else {
         my %seen;

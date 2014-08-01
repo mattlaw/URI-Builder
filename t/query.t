@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 
 use URI::Builder;
 
@@ -18,6 +18,9 @@ is_deeply(
     [ 1, 2, 3 ],
     'query_param(key) returns values',
 );
+
+is scalar $uri->query_param('foo'), 1,
+   'scalar query_param(key) returns first value';
 
 $uri->query_param_append(bar => 1, 2, 3, 4);
 is(
