@@ -439,10 +439,9 @@ sub query {
     my $old;
     if (my @form = $self->query_form) {
         push @form, '' if @form % 2;
-        $old = join(
-            $self->query_separator,
-            map { $_ % 2 ? () : "$form[$_]=$form[$_ + 1]" } 0 .. $#form
-        );
+        my $uri = URI->new;
+        $uri->query_form(\@form, $self->query_separator);
+        $old = $uri->query();
     }
     else {
         $old = join '+', $self->query_keywords;

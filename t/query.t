@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 use URI::Builder;
 
@@ -94,6 +94,8 @@ is $uri->query, 'x=y', 'query set by path_query';
 
 $uri = URI::Builder->new(query_form => [ a => 'b', 'c' ] );
 is $uri->as_string, '?a=b;c=', 'odd-sized query_form lists get a blank value';
+
+is( URI::Builder->new(query_form => [ a => ';' ])->query, 'a=%3B' );
 
 # Edge-case behaviour, some of which causes warnings but represents light
 # interface abuse which deserves warnings in real life but doesn't justify
