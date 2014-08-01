@@ -20,11 +20,11 @@ URI::Builder - URI objects optimised for manipulation
 
 =head1 VERSION
 
-0.03
+0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 DESCRIPTION
 

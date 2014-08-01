@@ -12,7 +12,7 @@ SYNOPSIS
         say $uri->as_string; # http://www.cpan.org/misc/cpan-faq.html
 
 VERSION
-    0.03
+    0.04
 
 DESCRIPTION
     This class is a close relative of URI, but while that class is optimised
@@ -138,6 +138,9 @@ METHODS
     If an argument is passed, it is parsed to populate "query_form".
 
   path_query
+    Returns a string representation of the path plus the query string. See
+    "path_query" in URI.
+
   query_param
         @keys       = $uri->query_param
         @values     = $uri->query_param($key)

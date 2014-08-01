@@ -1,6 +1,10 @@
 Revision history for perl module URI::Builder
 
-0.03 Not Released
+0.04 2014-08-01
+    - Fixed query_param scalar context behaviour
+    - Fixed escaping of query strings
+
+0.03 2013-08-07
     - Fixed the format of this file (thanks to Neil Bowers)
 
 0.02 2013-08-06
